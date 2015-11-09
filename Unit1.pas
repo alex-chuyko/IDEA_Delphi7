@@ -35,7 +35,7 @@ type
 var
   Form1: TForm1;
   FileNameKey, FileNameText: string;
-  flagKey, flagText, flag : boolean;
+  flagKey, flagText, flag, flag2 : boolean;
 
 implementation
 
@@ -313,6 +313,7 @@ begin
     reset(f);
     while not Eof(f) do
     begin
+      flag2 := true;
       for i:= 1 to 8 do
       begin
         arr1[0, i] := 0;
@@ -334,7 +335,8 @@ begin
         //write(IntToHex(arr[9, i], 4) , ' ');
       end;
     end;
-    write(arr[10, 1]);
+    WordToByte(arr[10, 1], b, c);
+    write(chr(b));
     CloseFile(output);
     CloseFile(f);
   end;
@@ -346,7 +348,7 @@ var
   arr : arrWord;
   i: integer;
   OutFileName: string;
-  b, c : byte;
+  b, c, temp : byte;
   arr1 : arrByte;
 begin
   b := 0;
@@ -362,13 +364,13 @@ begin
       reset(f);
       {$I-}
       while not Eof(f) do
-        read(f, arr1[0,1]);
-      arr[10, 1] := StrToInt(chr(arr1[0, 1]));
+        read(f, temp);
       CloseFile(f);
       {$I+}
     AssignFile(f, FileNameText);
     reset(f);
-    read(f, arr1[0, 1]);
+    if not Eof(f) then
+      read(f, arr1[0, 1]);
     
     while not Eof(f) do
     begin
@@ -388,9 +390,9 @@ begin
 
       if (Eof(f)) then
       begin
-        if arr[10, 1] mod 2 = 0 then
+        if temp mod 2 = 0 then
         begin
-          for i:=1 to (4 - arr[10,1] div 2) do
+          for i:=1 to (4 - temp div 2) do
           begin
             WordToByte(arr[9, i], b, c);
             write(chr(c), chr(b));
@@ -399,10 +401,10 @@ begin
         end
         else
           begin
-            for i:=1 to (4 - arr[10,1] div 2) do
+            for i:=1 to (4 - temp div 2) do
             begin
               WordToByte(arr[9, i], b, c);
-              if i <> (4 - arr[10,1] div 2) then
+              if i <> (4 - temp div 2) then
                 write(chr(c), chr(b))
               else
                 write(chr(c));
